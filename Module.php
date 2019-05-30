@@ -8,6 +8,7 @@
  * @copyright 2019 digimobil.es
  * @link https://gq-api.digimobil.es
  */
+
 namespace Core;
 
 class Module

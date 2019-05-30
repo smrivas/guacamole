@@ -14,7 +14,7 @@
 namespace Core\Filter\Join;
 
 
-abstract class AbstractJoin implements Join
+abstract class AbstractJoin implements JoinInterface
 {
     protected $entity1;
     protected $field1;

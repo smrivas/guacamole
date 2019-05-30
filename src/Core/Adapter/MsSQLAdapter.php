@@ -17,17 +17,16 @@ namespace Core\Adapter;
 use Core\Adapter\EntityConfiguration\EntityConfiguration;
 use Core\Adapter\Error\HydratorClassNotExistsException;
 use Core\Adapter\Error\HydratorResultSetException;
-use Core\Adapter\Hydrator\HydratorInterface;
-use Core\Adapter\Result\BasePersistResult;
-use Core\Adapter\Result\BaseSelectResult;
 use Core\Adapter\Hydrator\EntityHydrator;
 use Core\Adapter\Hydrator\ResultsetHydrator;
+use Core\Adapter\Result\BasePersistResult;
+use Core\Adapter\Result\BaseSelectResult;
 use Core\Adapter\Result\SQLResultInterface;
-use Core\Entity\Entity;
+use Core\Entity\EntityInterface;
 use Core\Filter\BaseFilter;
 use Core\Filter\FieldFilter\EqualsFieldFilter;
 use Core\Filter\FilterInterface;
-use Core\Filter\Join\Join;
+use Core\Filter\Join\JoinInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 
@@ -46,10 +45,10 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
      * @param null $fieldToFetch
      * @throws HydratorClassNotExistsException
      * @throws HydratorResultSetException
-     * @return Entity|null
+     * @return EntityInterface|null
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function get(string $entity, $primaryKey, $fieldToFetch = null): ?Entity
+    public function get(string $entity, $primaryKey, $fieldToFetch = null): ?EntityInterface
     {
         $configuration = $this->getEntityConfiguration($entity);
 
@@ -68,8 +67,10 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
             && count($primaryKey) === count($primaryKeyFields)
         ) {
             $whereConditions = array_combine($primaryKeyFields, $primaryKey);
-        } else if (count($primaryKeyFields) === 1) {
-            $whereConditions[reset($primaryKeyFields)] = $primaryKey;
+        } else {
+            if (count($primaryKeyFields) === 1) {
+                $whereConditions[reset($primaryKeyFields)] = $primaryKey;
+            }
         }
         if (count($whereConditions)) {
             $where = new BaseFilter();
@@ -89,7 +90,31 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
         return null;
     }
 
+    protected function _parseFieldsToFetch(EntityConfiguration $configuration, $fieldToFetch = null): array
+    {
+        $columns = [];
+        $fieldsMapping = $configuration->getFieldMapping();
 
+        if (!$fieldToFetch) {
+            foreach ($fieldsMapping as $fieldName => $columnName) {
+                $name = $columnName;
+                if (is_array($columnName)) {
+                    $name = $columnName["fieldName"];
+                }
+                $columns[$fieldName] = $name;
+            }
+        } else {
+            foreach ($fieldToFetch as $field) {
+                if (isset($fieldsMapping[$field])) {
+                    $columns[$fieldsMapping[$field]] = $field;
+                } else {
+                    // Field not defined in mapper
+                    continue;
+                }
+            }
+        }
+        return $columns;
+    }
 
     /**
      * performSelect
@@ -97,7 +122,7 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
      * @param array $columns
      * @param FilterInterface|null $where
      * @param array $order
-     * @param Join|null $join
+     * @param JoinInterface|null $join
      * @param int $offset
      * @param null $limit
      * @throws HydratorClassNotExistsException
@@ -124,7 +149,7 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
         }
         $joins = $where->getJoins();
         if (!empty($joins)) {
-            /** @var Join $join */
+            /** @var JoinInterface $join */
             foreach ($joins as $join) {
                 $select->join($join->getJoinTable(), $join->getJoinExpresion());
             }
@@ -160,8 +185,13 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
      * @throws HydratorResultSetException
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function search(string $entity, FilterInterface $filter, $fieldToFetch = null, $offset = null, $limit = null): array
-    {
+    public function search(
+        string $entity,
+        FilterInterface $filter,
+        $fieldToFetch = null,
+        $offset = null,
+        $limit = null
+    ): array {
         $configuration = $this->getEntityConfiguration($entity);
         $table = $configuration->getTable();
         $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
@@ -184,12 +214,12 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
      * @param string $key
      * @param int|mixed|string $value
      * @param null $fieldToFetch
-     * @return Entity|null
+     * @return EntityInterface|null
      * @throws HydratorClassNotExistsException
      * @throws HydratorResultSetException
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function findBy(string $entity, string $key, $value, $fieldToFetch = null): ?Entity
+    public function findBy(string $entity, string $key, $value, $fieldToFetch = null): ?EntityInterface
     {
         $configuration = $this->getEntityConfiguration($entity);
 
@@ -220,13 +250,13 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
 
     /**
      * persist
-     * @param Entity $obj
+     * @param EntityInterface $obj
      * @return SQLResultInterface
      * @throws Error\HydratorResultSetException
      * @throws HydratorClassNotExistsException
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function persist(Entity $obj): SQLResultInterface
+    public function persist(EntityInterface $obj): SQLResultInterface
     {
         $result = null;
 
@@ -239,20 +269,20 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
         return $result;
     }
 
-    protected function persistInTransaction(Entity $obj): SQLResultInterface
+    protected function persistInTransaction(EntityInterface $obj): SQLResultInterface
     {
 
     }
 
     /**
      * persistOutOfTransaction
-     * @param Entity $obj
+     * @param EntityInterface $obj
      * @return SQLResultInterface
      * @throws Error\HydratorResultSetException
      * @throws HydratorClassNotExistsException
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    protected function persistOutOfTransaction(Entity $obj): SQLResultInterface
+    protected function persistOutOfTransaction(EntityInterface $obj): SQLResultInterface
     {
         $sql = new Sql($this->adapter);
         $configuration = $this->getEntityConfiguration($obj);
@@ -321,32 +351,6 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
         if ($this->transaction) {
             $this->transaction->rollback();
         }
-    }
-
-    protected function _parseFieldsToFetch(EntityConfiguration $configuration, $fieldToFetch = null) : array
-    {
-        $columns = [];
-        $fieldsMapping = $configuration->getFieldMapping();
-
-        if (!$fieldToFetch) {
-            foreach ($fieldsMapping as $fieldName => $columnName) {
-                $name = $columnName;
-                if (is_array($columnName)) {
-                    $name = $columnName["fieldName"];
-                }
-                $columns[$fieldName] = $name;
-            }
-        } else {
-            foreach ($fieldToFetch as $field) {
-                if (isset($fieldsMapping[$field])) {
-                    $columns[$fieldsMapping[$field]] = $field;
-                } else {
-                    // Field not defined in mapper
-                    continue;
-                }
-            }
-        }
-        return $columns;
     }
 
     protected function getLastGeneratedValue()

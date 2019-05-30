@@ -23,7 +23,7 @@ interface TransactionInterface
      * @return AdapterInterface
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function startTransaction() : AdapterInterface;
+    public function startTransaction(): AdapterInterface;
 
 
     /**
@@ -31,7 +31,7 @@ interface TransactionInterface
      * @return bool
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function inTransaction() : bool ;
+    public function inTransaction(): bool;
 
     /**
      * commit
@@ -46,5 +46,5 @@ interface TransactionInterface
      * @return void
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function rollback() : void;
+    public function rollback(): void;
 }

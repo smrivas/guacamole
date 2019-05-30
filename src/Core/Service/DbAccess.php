@@ -14,10 +14,10 @@
 namespace Core\Service;
 
 
-use Core\Adapter\Adapter;
+use Core\Adapter\AdapterInterface;
 
 interface DbAccess
 {
-    public function addAdapter(Adapter $adapter);
+    public function addAdapter(AdapterInterface $adapter);
     public function getAdapters() : array;
 }

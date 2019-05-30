@@ -17,7 +17,7 @@ namespace Core\Adapter;
 use Core\Adapter\EntityConfiguration\EntityConfiguration;
 use Core\Adapter\Hydrator\HydratorInterface;
 use Core\Adapter\Result\SQLResultInterface;
-use Core\Entity\Entity;
+use Core\Entity\EntityInterface;
 use Core\Filter\FilterInterface;
 
 abstract class AbstractAdapter implements AdapterInterface
@@ -40,19 +40,22 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    abstract public function get(string $entity, $primaryKey, $fieldToFetch = null) : ?Entity;
+    abstract public function get(string $entity, $primaryKey, $fieldToFetch = null): ?EntityInterface;
+
     /**
      * @inheritdoc
      */
-    abstract public function persist(Entity $obj): SQLResultInterface;
+    abstract public function persist(EntityInterface $obj): SQLResultInterface;
+
     /**
      * @inheritdoc
      */
     abstract public function search(string $entity, FilterInterface $filter, $fieldToFetch = null): array;
+
     /**
      * @inheritdoc
      */
-    abstract public function findBy(string $entity,string $key, $value, $fieldToFetch = null): ?Entity;
+    abstract public function findBy(string $entity, string $key, $value, $fieldToFetch = null): ?EntityInterface;
 
 
     /**

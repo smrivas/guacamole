@@ -14,11 +14,13 @@
 namespace Core\Entity;
 
 
-abstract class BaseEntity implements Entity
+abstract class BaseEntity implements EntityInterface
 {
     protected $id;
     protected $created;
     protected $modified;
+
+    abstract static public function getModelConfig(): array;
 
     public function getId()
     {
@@ -42,7 +44,7 @@ abstract class BaseEntity implements Entity
     /**
      * @param mixed $created
      */
-    public function setCreated($created): Entity
+    public function setCreated($created): EntityInterface
     {
         $this->created = $created;
         return $this;
@@ -59,13 +61,11 @@ abstract class BaseEntity implements Entity
     /**
      * @param mixed $modified
      */
-    public function setModified($modified): Entity
+    public function setModified($modified): EntityInterface
     {
         $this->modified = $modified;
         return $this;
     }
-
-
 
     public function exchangeArray(array $data = [])
     {
@@ -83,8 +83,5 @@ abstract class BaseEntity implements Entity
     {
         return get_object_vars($this);
     }
-
-
-    abstract static public function getModelConfig() : array;
 
 }

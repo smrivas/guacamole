@@ -15,7 +15,7 @@ namespace Core\Filter;
 
 
 use Core\Filter\FieldFilter\FieldFilterInterface;
-use Core\Filter\Join\Join;
+use Core\Filter\Join\JoinInterface;
 use Zend\Db\Sql\Predicate\PredicateSet;
 
 class BaseFilter implements FilterInterface
@@ -61,7 +61,7 @@ class BaseFilter implements FilterInterface
         return $this->predicate;
     }
 
-    public function addJoin(Join $join): FilterInterface
+    public function addJoin(JoinInterface $join): FilterInterface
     {
         // TODO: Implement addJoin() method.
     }

@@ -37,5 +37,10 @@ class BasePersistResult implements SQLResultInterface
         // TODO: Implement toArray() method.
     }
 
+    public function getFirst(): array
+    {
+        // TODO: Implement getFirst() method.
+    }
+
 
 }

@@ -14,7 +14,7 @@
 namespace Core\Adapter\Error;
 
 
-abstract class AbstractAdapterException extends \Exception implements Exception
+abstract class AbstractAdapterException extends \Exception implements ExceptionInterface
 {
 
 }

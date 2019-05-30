@@ -15,7 +15,7 @@ namespace Core\Adapter\Hydrator;
 
 
 use Core\Adapter\Result\SQLResultInterface;
-use Core\Entity\Entity;
+use Core\Entity\EntityInterface;
 
 interface HydratorInterface
 {

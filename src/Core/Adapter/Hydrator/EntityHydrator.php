@@ -14,12 +14,9 @@
 namespace Core\Adapter\Hydrator;
 
 
-use Core\Adapter\EntityConfiguration\EntityConfiguration;
 use Core\Adapter\Error\HydratorClassNotExistsException;
 use Core\Adapter\Hydrator\Strategy\StrategyInterface;
-use Core\Adapter\Result\SQLResultInterface;
-use Core\Adapter\TransactionInterface;
-use Core\Entity\Entity;
+use Core\Entity\EntityInterface;
 
 class EntityHydrator extends BaseHydrator
 {
@@ -27,14 +24,14 @@ class EntityHydrator extends BaseHydrator
      * hydrate
      * @param string $entity
      * @param array $result
-     * @return Entity
+     * @return EntityInterface
      * @throws HydratorClassNotExistsException
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function hydrate(string $entity, $result): Entity
+    public function hydrate(string $entity, $result): EntityInterface
     {
         if (class_exists($entity)) {
-            /** @var Entity $obj */
+            /** @var EntityInterface $obj */
             $obj = new $entity;
             if (is_array($result)) {
                 foreach ($result as $key => $value) {
@@ -52,7 +49,6 @@ class EntityHydrator extends BaseHydrator
     }
 
 
-
     protected function hydrateValue($key, $value)
     {
         if (!empty($this->strategies[$key])) {
@@ -68,11 +64,12 @@ class EntityHydrator extends BaseHydrator
 
     /**
      * extract
-     * @param Entity $source
+     * @param EntityInterface $source
      * @param $strategy
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function extract($source, $mapping = []) {
+    public function extract($source, $mapping = [])
+    {
         $extractedData = [];
 
         $fieldMapping = $source->getFields();

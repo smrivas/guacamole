@@ -15,7 +15,7 @@ namespace Core\Filter;
 
 
 use Core\Filter\FieldFilter\FieldFilterInterface;
-use Core\Filter\Join\Join;
+use Core\Filter\Join\JoinInterface;
 
 interface FilterInterface
 {
@@ -26,31 +26,31 @@ interface FilterInterface
      * @return FilterInterface
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function addFilter(FieldFilterInterface $filter) : FilterInterface;
+    public function addFilter(FieldFilterInterface $filter): FilterInterface;
 
     /**
      * Returns the array of filters configured
      * @return array
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function getFilters() : array;
+    public function getFilters(): array;
 
     /**
      * Returns the type of combination for the filters
      * @return string
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function getPredicate() : string;
+    public function getPredicate(): string;
 
     /**
      * Adds a Join to the filter conditions
-     * @param Join $join
+     * @param JoinInterface $join
      * @return FilterInterface
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function addJoin(Join $join) : FilterInterface;
+    public function addJoin(JoinInterface $join): FilterInterface;
 
-    public function getJoins() : array;
+    public function getJoins(): array;
 
     public function setPredicate(string $predicate): FilterInterface;
 }
