@@ -17,8 +17,6 @@ namespace Core\Filter\FieldFilter;
 class EqualsFieldFilter extends AbstractFieldFilter
 {
 
-    protected $field;
-    protected $value;
     protected $conditionFn = "=";
 
     /**
@@ -30,11 +28,5 @@ class EqualsFieldFilter extends AbstractFieldFilter
         $this->field = key($condition);
         $this->value = reset($condition);
     }
-
-    public function getExpresion(): array
-    {
-        return [$this->field => $this->value];
-    }
-
 
 }

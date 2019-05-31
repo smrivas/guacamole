@@ -25,6 +25,8 @@ use Core\Adapter\Result\SQLResultInterface;
 use Core\Entity\EntityInterface;
 use Core\Filter\BaseFilter;
 use Core\Filter\FieldFilter\EqualsFieldFilter;
+use Core\Filter\FieldFilter\Strategy\Error\FieldFilterStrategyNotExists;
+use Core\Filter\FieldFilter\Strategy\FieldFilterStrategyInterface;
 use Core\Filter\FilterInterface;
 use Core\Filter\Join\JoinInterface;
 use Zend\Db\Sql\Select;
@@ -37,6 +39,7 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
      */
     protected $transaction = null;
 
+    const ADAPTER_TYPE = 'MSSQL';
 
     /**
      * get
@@ -117,6 +120,37 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
     }
 
     /**
+     * buildFilters
+     * @param FilterInterface $filter
+     * @return array
+     * @throws FieldFilterStrategyNotExists
+     * @throws \ReflectionException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    protected function buildFilters(FilterInterface $filter) : array
+    {
+        $builtFilters = [];
+        /** @var FieldFilterStrategyInterface $strategy */
+        $strategy = null;
+        foreach ($filter->getFilters() as $fieldFilter) {
+            $filterClassName = (new \ReflectionClass($fieldFilter))->getShortName();
+            $defaultStrategy = 'Core\Filter\FieldFilter\Strategy\\'.$filterClassName.'Strategy';
+            $adapterStrategy = $defaultStrategy.self::ADAPTER_TYPE;
+            
+            if (class_exists($adapterStrategy)) {
+                $strategy = new $adapterStrategy();
+                $builtFilters += $strategy->transform($fieldFilter);
+            } else if (class_exists($defaultStrategy)) {
+                $strategy = new $defaultStrategy();
+                $builtFilters += $strategy->transform($fieldFilter);
+            } else {
+                throw new FieldFilterStrategyNotExists();
+            }
+        }
+        return $builtFilters;
+    }
+
+    /**
      * performSelect
      * @param string $table
      * @param array $columns
@@ -142,7 +176,7 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
 
         $select = new Select($table);
         $select->columns($columns);
-        $select->where($where->getFilters(), $where->getPredicate());
+        $select->where($this->buildFilters($where), $where->getPredicate());
 
         if (count($order)) {
             $select->order($order);

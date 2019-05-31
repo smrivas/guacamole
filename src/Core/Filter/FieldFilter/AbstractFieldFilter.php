@@ -21,5 +21,16 @@ abstract class AbstractFieldFilter implements FieldFilterInterface
     protected $fieldAlias;
     protected $conditionFn;
 
-    abstract public function getExpresion(): array;
+    public function getField() {
+        return $this->field;
+    }
+    public function getFieldAlias() {
+        return $this->fieldAlias;
+    }
+    public function getValue() {
+        return $this->value;
+    }
+    public function getConditionFn() {
+        return $this->conditionFn;
+    }
 }

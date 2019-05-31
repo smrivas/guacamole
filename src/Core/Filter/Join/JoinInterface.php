@@ -11,7 +11,7 @@
  */
 
 
-namespace Core\Filter\JoinInterface;
+namespace Core\Filter\Join;
 
 
 interface JoinInterface

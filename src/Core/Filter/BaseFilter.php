@@ -40,14 +40,7 @@ class BaseFilter implements FilterInterface
 
     public function getFilters(): array
     {
-        $filters = [];
-        /** @var FieldFilterInterface $filter */
-        foreach ($this->fieldFilters as $filter) {
-            $filters += $filter->getExpresion();
-        }
-
-        return $filters;
-
+        return $this->fieldFilters;
     }
 
     public function setPredicate(string $predicate): FilterInterface

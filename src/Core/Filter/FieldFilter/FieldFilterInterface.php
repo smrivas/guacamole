@@ -16,5 +16,8 @@ namespace Core\Filter\FieldFilter;
 
 interface FieldFilterInterface
 {
-    public function getExpresion(): array;
+    public function getField();
+    public function getFieldAlias();
+    public function getValue();
+    public function getConditionFn();
 }

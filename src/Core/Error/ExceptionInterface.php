@@ -1,6 +1,6 @@
 <?php
 /**
- * <strong>Name :  AbstractAdapterException.php</strong></br>
+ * <strong>Name :  Exception.php</strong></br>
  * <strong>Desc :  [Put a description here]</strong></br>
  *
  * @category rdsdb-api
@@ -11,12 +11,10 @@
  */
 
 
-namespace Core\Adapter\Error;
+namespace Core\Error;
 
 
-use Core\Error\AbstractException;
-
-abstract class AbstractAdapterException extends AbstractException
+interface ExceptionInterface
 {
 
 }
