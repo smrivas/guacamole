@@ -1,0 +1,31 @@
+{
+  "name": "public-es/core",
+  "description": "GraphQL Core",
+  "type": "library",
+  "keywords": [
+    "core"
+  ],
+  "license": "MIT",
+  "dist": {
+    "url": "http://gitlab.rcs-rds.ro/public-es/core.git",
+    "type": "git"
+  },
+  "authors": [
+    {
+      "name": "Pablo Cruz",
+      "email": "pablo.cruz@digimobil.es"
+    }
+  ],
+  "suggest": {
+    "zendframework/zend-developer-tools": "zend-developer-tools for dev and profiling",
+    "zendframework/zendframework": "2.4.2"
+  },
+  "require": {
+    "php": ">=7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "StoreServices\\": ""
+    }
+  }
+}
