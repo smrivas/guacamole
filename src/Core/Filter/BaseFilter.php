@@ -24,7 +24,7 @@ class BaseFilter implements FilterInterface
     protected $fieldFilters = [];
     protected $predicate = PredicateSet::OP_AND;
     protected $joins = [];
-
+    protected $entity = null;
 
     public function getJoins(): array
     {
@@ -58,5 +58,22 @@ class BaseFilter implements FilterInterface
     {
         // TODO: Implement addJoin() method.
     }
+
+    /**
+     * @return mixed
+     */
+    public function getEntity() : string
+    {
+        return $this->entity;
+    }
+
+    /**
+     * @param mixed $entity
+     */
+    public function setEntity( string $entity): void
+    {
+        $this->entity = $entity;
+    }
+
 
 }

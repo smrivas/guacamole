@@ -14,10 +14,29 @@
 namespace Core\Filter\FieldFilter\Strategy;
 
 
+use Core\Adapter\EntityConfiguration\EntityConfiguration;
+use Core\Entity\EntityInterface;
 use Core\Filter\FieldFilter\FieldFilterInterface;
 
 abstract class AbstractFieldFilterStrategy implements FieldFilterStrategyInterface
 {
-    abstract public function transform(FieldFilterInterface $filter) : array;
+    /** @var string */
+    protected $entity;
 
+    abstract public function transform(string $entity,FieldFilterInterface $filter) : array;
+
+    /**
+     * mapField
+     * @param FieldFilterInterface $filter
+     * @return string
+     * @throws \EntityConfigurationFieldNotExistException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    protected function mapField(FieldFilterInterface $filter)
+    {
+        $configuration = new EntityConfiguration();
+        $configuration->setEntity($this->entity);
+
+        return $configuration->mapField($filter->getField());
+    }
 }

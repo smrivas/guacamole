@@ -13,12 +13,15 @@
 
 namespace Core\Entity;
 
+use Core\Adapter\Result\Collection\EntityCollection;
 
-abstract class BaseEntity implements EntityInterface
+abstract class BaseEntity extends BaseEntityDependency implements EntityInterface
 {
     protected $id;
     protected $created;
     protected $modified;
+    /** @var EntityCollection|null  */
+    protected $collection = null;
 
     abstract static public function getModelConfig(): array;
 
@@ -84,4 +87,21 @@ abstract class BaseEntity implements EntityInterface
         return get_object_vars($this);
     }
 
+    /**
+     * @return null
+     */
+    public function getCollection()
+    {
+        return $this->collection;
+    }
+
+    /**
+     * @param null $collection
+     * @return BaseEntity
+     */
+    public function setCollection($collection)
+    {
+        $this->collection = $collection;
+        return $this;
+    }
 }

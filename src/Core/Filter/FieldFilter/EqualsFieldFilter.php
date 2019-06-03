@@ -22,9 +22,10 @@ class EqualsFieldFilter extends AbstractFieldFilter
     /**
      * EqualsFieldFilter constructor.
      */
-    public function __construct(array $condition = [])
+    public function __construct(string $entity, array $condition = [])
     {
 
+        $this->entity = $entity;
         $this->field = key($condition);
         $this->value = reset($condition);
     }

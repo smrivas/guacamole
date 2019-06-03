@@ -14,24 +14,28 @@
 namespace Core\Adapter\Hydrator;
 
 
+use Core\Adapter\AdapterFactory\AdapterFactoryInterface;
 use Core\Adapter\Error\HydratorClassNotExistsException;
 use Core\Adapter\Hydrator\Strategy\StrategyInterface;
+use Core\Entity\BaseEntity;
 use Core\Entity\EntityInterface;
 
 class EntityHydrator extends BaseHydrator
 {
+
     /**
      * hydrate
      * @param string $entity
      * @param array $result
-     * @return EntityInterface
+     * @return BaseEntity
      * @throws HydratorClassNotExistsException
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function hydrate(string $entity, $result): EntityInterface
+    public function hydrate(string $entity, $result): BaseEntity
     {
+
         if (class_exists($entity)) {
-            /** @var EntityInterface $obj */
+            /** @var BaseEntity $obj */
             $obj = new $entity;
             if (is_array($result)) {
                 foreach ($result as $key => $value) {
@@ -41,6 +45,7 @@ class EntityHydrator extends BaseHydrator
                     }
                 }
             }
+            $obj->setAdapterFactory($this->adapterFactory);
 
             return $obj;
         } else {

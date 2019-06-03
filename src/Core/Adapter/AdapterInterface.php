@@ -11,6 +11,8 @@
 
 namespace Core\Adapter;
 
+use Core\Adapter\AdapterFactory\AdapterFactoryInterface;
+use Core\Adapter\Result\Collection\CollectionInterface;
 use Core\Adapter\Result\SQLResultInterface;
 use Core\Entity\EntityInterface;
 use Core\Filter\FilterInterface;
@@ -40,13 +42,12 @@ interface AdapterInterface
 
     /**
      * search
-     * @param string $entity the classname of the entity to search
      * @param FilterInterface $filter
-     * @return array of Entity
+     * @return CollectionInterface of Entity
      * @param null|array fieldToFetch defaults to null, fetching every Entity field
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function search(string $entity, FilterInterface $filter, $fieldToFetch = null): array;
+    public function search(FilterInterface $filter, $fieldToFetch = null): CollectionInterface;
 
     /**
      * Returns an Entity identified by $key with value $value
@@ -58,4 +59,12 @@ interface AdapterInterface
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
     public function findBy(string $entity, string $key, $value, $fieldToFetch = null): ?EntityInterface;
+
+    /**
+     * setAdapterFactory
+     * @param AdapterFactoryInterface $adapterFactory
+     * @return AdapterInterface
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function setAdapterFactory(AdapterFactoryInterface $adapterFactory): AdapterInterface;
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * <strong>Name :  FieldFilter.php</strong></br>
+ * <strong>Name :  PrimaryKeyFieldFilter.php</strong></br>
  * <strong>Desc :  [Put a description here]</strong></br>
  *
  * @category rdsdb-api
@@ -14,13 +14,9 @@
 namespace Core\Filter\FieldFilter;
 
 
-use Core\Entity\EntityInterface;
+use Core\Adapter\EntityConfiguration\EntityConfiguration;
 
-interface FieldFilterInterface
+class PrimaryKeyFieldFilter extends AbstractFieldFilter
 {
-    public function getEntity() : string;
-    public function getField();
-    public function getFieldAlias();
-    public function getValue();
-    public function getConditionFn();
+
 }

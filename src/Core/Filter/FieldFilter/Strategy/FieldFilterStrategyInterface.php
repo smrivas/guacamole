@@ -14,9 +14,10 @@
 namespace Core\Filter\FieldFilter\Strategy;
 
 
+use Core\Entity\EntityInterface;
 use Core\Filter\FieldFilter\FieldFilterInterface;
 
 interface FieldFilterStrategyInterface
 {
-    public function transform(FieldFilterInterface $filter) : array;
+    public function transform(string $entity, FieldFilterInterface $filter) : array;
 }

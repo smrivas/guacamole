@@ -14,23 +14,93 @@
 namespace Core\Filter\FieldFilter;
 
 
+use Core\Entity\EntityInterface;
+
 abstract class AbstractFieldFilter implements FieldFilterInterface
 {
     protected $field;
     protected $value;
     protected $fieldAlias;
     protected $conditionFn;
+    protected $entity;
 
-    public function getField() {
+    /**
+     * @param mixed $field
+     * @return AbstractFieldFilter
+     */
+    public function setField($field)
+    {
+        $this->field = $field;
+        return $this;
+    }
+
+    /**
+     * @param mixed $value
+     * @return AbstractFieldFilter
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+        return $this;
+    }
+
+    /**
+     * @param mixed $fieldAlias
+     * @return AbstractFieldFilter
+     */
+    public function setFieldAlias($fieldAlias)
+    {
+        $this->fieldAlias = $fieldAlias;
+        return $this;
+    }
+
+    /**
+     * @param mixed $conditionFn
+     * @return AbstractFieldFilter
+     */
+    public function setConditionFn($conditionFn)
+    {
+        $this->conditionFn = $conditionFn;
+        return $this;
+    }
+
+    /**
+     * @param mixed $entity
+     * @return AbstractFieldFilter
+     */
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+        return $this;
+    }
+
+
+    public function getField()
+    {
         return $this->field;
     }
-    public function getFieldAlias() {
+
+    public function getFieldAlias()
+    {
         return $this->fieldAlias;
     }
-    public function getValue() {
+
+    public function getValue()
+    {
         return $this->value;
     }
-    public function getConditionFn() {
+
+    public function getConditionFn()
+    {
         return $this->conditionFn;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getEntity() : string
+    {
+        return $this->entity;
+    }
+
 }

@@ -14,11 +14,13 @@
 namespace Core\Adapter;
 
 
+use Core\Adapter\AdapterFactory\AdapterFactoryInterface;
 use Core\Adapter\EntityConfiguration\EntityConfiguration;
 use Core\Adapter\Hydrator\HydratorInterface;
 use Core\Adapter\Result\SQLResultInterface;
 use Core\Entity\EntityInterface;
 use Core\Filter\FilterInterface;
+use Core\Adapter\Result\Collection\CollectionInterface;
 
 abstract class AbstractAdapter implements AdapterInterface
 {
@@ -26,6 +28,9 @@ abstract class AbstractAdapter implements AdapterInterface
 
     /** @var null|\Zend\Db\Adapter\Adapter */
     protected $adapter = null;
+
+    /** @var null|AdapterFactoryInterface */
+    protected $adapterFactory = null;
 
     /**
      * setAdapter
@@ -50,7 +55,8 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    abstract public function search(string $entity, FilterInterface $filter, $fieldToFetch = null): array;
+    abstract public function search(FilterInterface $filter, $fieldToFetch = null): CollectionInterface;
+
 
     /**
      * @inheritdoc
@@ -79,6 +85,12 @@ abstract class AbstractAdapter implements AdapterInterface
                 $entityHydator->addStrategy($field, $value["transform"]);
             }
         }
+    }
+
+    public function setAdapterFactory(AdapterFactoryInterface $adapterFactory): AdapterInterface
+    {
+        $this->adapterFactory = $adapterFactory;
+        return $this;
     }
 
 }

@@ -14,13 +14,24 @@
 namespace Core\Filter\FieldFilter\Strategy;
 
 
+use Core\Entity\EntityInterface;
 use Core\Filter\FieldFilter\FieldFilterInterface;
 
 class EqualsFieldFilterStrategy extends AbstractFieldFilterStrategy
 {
-    public function transform(FieldFilterInterface $filter) : array
+    /**
+     * transform
+     * @param string $entity
+     * @param FieldFilterInterface $filter
+     * @return array
+     * @throws \EntityConfigurationFieldNotExistException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function transform(string $entity, FieldFilterInterface $filter) : array
     {
-        return [$filter->getField() => $filter->getValue()];
+        $this->entity = $entity;
+     
+        return [$this->mapField($filter) => $filter->getValue()];
     }
 
 }

@@ -14,6 +14,7 @@
 namespace Core\Filter;
 
 
+use Core\Entity\EntityInterface;
 use Core\Filter\FieldFilter\FieldFilterInterface;
 use Core\Filter\Join\JoinInterface;
 
@@ -53,4 +54,6 @@ interface FilterInterface
     public function getJoins(): array;
 
     public function setPredicate(string $predicate): FilterInterface;
+
+    public function getEntity() : string;
 }

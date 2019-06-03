@@ -14,6 +14,8 @@
 namespace Core\Adapter\EntityConfiguration;
 
 
+use EntityConfigurationFieldNotExistException;
+
 class EntityConfiguration
 {
     protected $fieldMapping = [];
@@ -101,5 +103,27 @@ class EntityConfiguration
         }
 
         return $primaryKeys;
+    }
+
+
+    /**
+     * mapField
+     * @param $field
+     * @return string
+     * @throws EntityConfigurationFieldNotExistException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function mapField($field) : string
+    {
+        $fieldMapping = $this->getFieldMapping();
+
+        if (empty($fieldMapping[$field])) {
+            throw new EntityConfigurationFieldNotExistException();
+        }
+        if (is_array($fieldMapping[$field])) {
+            return $fieldMapping[$field]["fieldName"];
+        } else {
+            return $fieldMapping[$field];
+        }
     }
 }
