@@ -16,5 +16,5 @@ namespace Core\Entity;
 
 interface EntityDependencyInterface
 {
-
+    static public function extractDependencyDetails($name): array;
 }

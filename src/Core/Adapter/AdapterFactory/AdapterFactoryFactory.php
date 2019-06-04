@@ -28,7 +28,7 @@ class AdapterFactoryFactory implements FactoryInterface
         /** @var AdapterInterface $fallBackCache */
         $fallBackCache = $serviceLocator->get("Core\MemcachedAdapter");
 
-        $baseCacheAdapter->setFallBack($fallBackCache);
+//        $baseCacheAdapter->setFallBack($fallBackCache);
 
         return new AdapterFactory($serviceLocator, $baseCacheAdapter);
     }

@@ -56,7 +56,11 @@ class BaseFilter implements FilterInterface
 
     public function addJoin(JoinInterface $join): FilterInterface
     {
-        // TODO: Implement addJoin() method.
+        if (empty($join->getBaseTable())) {
+            $join->setBaseTable($this->getEntity());
+        }
+        $this->joins[] = $join;
+        return $this;
     }
 
     /**
@@ -84,6 +88,10 @@ class BaseFilter implements FilterInterface
 
         foreach ($this->getFilters() as $filter) {
             $string .= $filter;
+        }
+
+        foreach ($this->getJoins() as $join) {
+            $string .= ':'.$join;
         }
 
         return $string;

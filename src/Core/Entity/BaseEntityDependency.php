@@ -68,7 +68,7 @@ abstract class BaseEntityDependency implements EntityDependencyInterface, Entity
                 $this->collection->resolveDependency($name);
                 $dependency = $this->{lcfirst($name)};
             } else {
-                $dependencyConfig = $this->extractDependencyDetails($name);
+                $dependencyConfig = $this::extractDependencyDetails($name);
 
                 if (empty($dependencyConfig["joinField"])
                     || empty($dependencyConfig["joinValue"])
@@ -105,7 +105,7 @@ abstract class BaseEntityDependency implements EntityDependencyInterface, Entity
         $this->dependenciesResolved[$name] = $dependency;
     }
 
-    public function extractDependencyDetails($name): array
+    static public function extractDependencyDetails($name): array
     {
         $config = static::getModelConfig();
 

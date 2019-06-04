@@ -14,8 +14,15 @@
 namespace Core\Filter\Join;
 
 
+use Core\Filter\Join\JoinTable\JoinTableInterface;
+
 abstract class AbstractJoin implements JoinInterface
 {
+    /** @var null|JoinTableInterface  */
+    protected $joinTable = null;
+    /** @var null|string  */
+    protected $baseTable = null;
+
     protected $entity1;
     protected $field1;
     protected $entity2;
