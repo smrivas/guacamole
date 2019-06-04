@@ -128,5 +128,4 @@ abstract class BaseEntity extends BaseEntityDependency implements EntityInterfac
         $this->exchangeArray(unserialize($serialized));
     }
 
-
 }

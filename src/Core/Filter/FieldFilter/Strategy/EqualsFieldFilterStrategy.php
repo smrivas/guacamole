@@ -14,6 +14,7 @@
 namespace Core\Filter\FieldFilter\Strategy;
 
 
+use Core\Entity\EntityDependencyInterface;
 use Core\Entity\EntityInterface;
 use Core\Filter\FieldFilter\FieldFilterInterface;
 
@@ -29,9 +30,17 @@ class EqualsFieldFilterStrategy extends AbstractFieldFilterStrategy
      */
     public function transform(string $entity, FieldFilterInterface $filter) : array
     {
+        /** @var EntityInterface $entity */
         $this->entity = $entity;
-     
-        return [$this->mapField($filter) => $filter->getValue()];
+
+        $alias = $filter->getFieldAlias();
+        if (empty($alias)) {
+            $alias = $entity::getModelConfig()["table"];
+        }
+
+        $transformation = [$alias.".".$this->mapField($filter) => $filter->getValue()];
+
+        return $transformation;
     }
 
 }

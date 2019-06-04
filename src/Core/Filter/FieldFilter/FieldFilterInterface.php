@@ -14,8 +14,6 @@
 namespace Core\Filter\FieldFilter;
 
 
-use Core\Entity\EntityInterface;
-
 interface FieldFilterInterface
 {
     public function getEntity() : string;

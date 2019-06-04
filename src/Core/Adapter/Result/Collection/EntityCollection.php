@@ -39,7 +39,7 @@ class EntityCollection extends AbstractCollection
         /** @var BaseEntity $firstEntity */
         $firstEntity = $this->data[0];
 
-        $dependencyConfig = $firstEntity->extractDependencyDetails($name);
+        $dependencyConfig = $firstEntity::extractDependencyDetails($name);
 
         if (empty($dependencyConfig["joinField"])
             || empty($dependencyConfig["joinValue"])

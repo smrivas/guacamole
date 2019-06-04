@@ -18,7 +18,7 @@ use Core\Adapter\AdapterFactory\AdapterFactoryInterface;
 
 abstract class AbstractCollection implements CollectionInterface, \ArrayAccess, \IteratorAggregate, \Serializable
 {
-    /** @var array  */
+    /** @var array */
     protected $data = [];
     /** @var null|AdapterFactoryInterface */
     protected $adapterFactory = null;
@@ -62,7 +62,7 @@ abstract class AbstractCollection implements CollectionInterface, \ArrayAccess, 
         return new \ArrayIterator($this->data);
     }
 
-    public function add($element, $key = null) : CollectionInterface
+    public function add($element, $key = null): CollectionInterface
     {
 
         if ($key) {

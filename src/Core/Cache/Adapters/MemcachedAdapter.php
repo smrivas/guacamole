@@ -51,7 +51,9 @@ class MemcachedAdapter extends AbstractAdapter
      */
     public function setItem(string $key, $val, &$success = false)
     {
-        self::$cache->insert($key, serialize($val), ["expiry" => self::$ttl]);
+        if (empty(self::$cache->get($key))) {
+            self::$cache->insert($key, serialize($val), ["expiry" => self::$ttl]);
+        }
         return true;
     }
 
