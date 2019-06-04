@@ -14,6 +14,8 @@
 namespace Core\Adapter\AdapterFactory;
 
 
+use Core\Cache\Adapters\AdapterInterface;
+use Core\Cache\CacheInterface;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -21,6 +23,13 @@ class AdapterFactoryFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new AdapterFactory($serviceLocator);
+        /** @var CacheInterface $baseCacheAdapter */
+        $baseCacheAdapter = $serviceLocator->get("Core\BaseCacheAdapter");
+        /** @var AdapterInterface $fallBackCache */
+        $fallBackCache = $serviceLocator->get("Core\MemcachedAdapter");
+
+        $baseCacheAdapter->setFallBack($fallBackCache);
+
+        return new AdapterFactory($serviceLocator, $baseCacheAdapter);
     }
 }

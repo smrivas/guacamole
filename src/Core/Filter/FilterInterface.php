@@ -56,4 +56,6 @@ interface FilterInterface
     public function setPredicate(string $predicate): FilterInterface;
 
     public function getEntity() : string;
+
+
 }

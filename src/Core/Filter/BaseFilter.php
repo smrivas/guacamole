@@ -75,5 +75,19 @@ class BaseFilter implements FilterInterface
         $this->entity = $entity;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function __toString()
+    {
+        $string = "";
+
+        foreach ($this->getFilters() as $filter) {
+            $string .= $filter;
+        }
+
+        return $string;
+    }
+
 
 }
