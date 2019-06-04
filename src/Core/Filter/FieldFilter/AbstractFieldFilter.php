@@ -103,4 +103,13 @@ abstract class AbstractFieldFilter implements FieldFilterInterface
         return $this->entity;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function __toString()
+    {
+        $string = get_class($this).":".json_encode($this->field).":".json_encode($this->value);
+
+        return $string;
+    }
 }

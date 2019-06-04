@@ -16,7 +16,7 @@ namespace Core\Adapter\Result\Collection;
 
 use Core\Adapter\AdapterFactory\AdapterFactoryInterface;
 
-abstract class AbstractCollection implements CollectionInterface, \ArrayAccess, \IteratorAggregate
+abstract class AbstractCollection implements CollectionInterface, \ArrayAccess, \IteratorAggregate, \Serializable
 {
     /** @var array  */
     protected $data = [];
@@ -91,4 +91,19 @@ abstract class AbstractCollection implements CollectionInterface, \ArrayAccess, 
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function serialize()
+    {
+        return serialize($this->data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unserialize($serialized)
+    {
+        $this->data = unserialize($serialized);
+    }
 }

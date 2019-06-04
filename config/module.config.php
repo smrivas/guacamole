@@ -10,8 +10,14 @@
  */
 return [
     "service_manager" => [
+        "invokable" => [
+
+        ],
         "factories" => [
-            "Core\AdapterFactory" => \Core\Adapter\AdapterFactory\AdapterFactoryFactory::class
+            "Core\AdapterFactory" => \Core\Adapter\AdapterFactory\AdapterFactoryFactory::class,
+            "Core\BaseCacheAdapter" => \Core\Cache\CacheFactory::class,
+            "Core\MemcachedAdapter" => \Core\Cache\Adapters\MemcachedAdapterFactory::class,
+            "Core\CacheAPCAdapter" => \Core\Cache\Adapters\APCAdapterFactory::class
         ]
     ]
 

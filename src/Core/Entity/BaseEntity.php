@@ -15,7 +15,7 @@ namespace Core\Entity;
 
 use Core\Adapter\Result\Collection\EntityCollection;
 
-abstract class BaseEntity extends BaseEntityDependency implements EntityInterface
+abstract class BaseEntity extends BaseEntityDependency implements EntityInterface, \Serializable
 {
     protected $id;
     protected $created;
@@ -104,4 +104,29 @@ abstract class BaseEntity extends BaseEntityDependency implements EntityInterfac
         $this->collection = $collection;
         return $this;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function serialize()
+    {
+        $data = $this->__debugInfo();
+        unset($data["collection"]);
+        foreach ($data as $key => $val) {
+            if ($val === null) {
+                unset($data[$key]);
+            }
+        }
+        return serialize($data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unserialize($serialized)
+    {
+        $this->exchangeArray(unserialize($serialized));
+    }
+
+
 }

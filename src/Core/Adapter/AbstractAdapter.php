@@ -22,7 +22,7 @@ use Core\Entity\EntityInterface;
 use Core\Filter\FilterInterface;
 use Core\Adapter\Result\Collection\CollectionInterface;
 
-abstract class AbstractAdapter implements AdapterInterface
+abstract class AbstractAdapter extends CachedAdapter implements AdapterInterface
 {
 
 
@@ -31,6 +31,7 @@ abstract class AbstractAdapter implements AdapterInterface
 
     /** @var null|AdapterFactoryInterface */
     protected $adapterFactory = null;
+
 
     /**
      * setAdapter

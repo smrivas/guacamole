@@ -39,12 +39,11 @@ use Zend\Db\Sql\Sql;
 
 class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
 {
+    const ADAPTER_TYPE = 'MSSQL';
     /**
      * @var null|\Zend\Db\Adapter\Driver\ConnectionInterface
      */
     protected $transaction = null;
-
-    const ADAPTER_TYPE = 'MSSQL';
 
     /**
      * get
@@ -58,31 +57,38 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
      */
     public function get(string $entity, $primaryKey, $fieldToFetch = null): ?EntityInterface
     {
-        $configuration = $this->getEntityConfiguration($entity);
-
-        $table = $configuration->getTable();
-
-        $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
-
+        $cacheHash = $this->cache->generateHash();
         $selectResult = null;
 
-        $where = new BaseFilter();
+        $configuration = $this->getEntityConfiguration($entity);
 
-        $pkFilter = new PrimaryKeyFieldFilter();
-        $pkFilter->setEntity($entity);
-        $pkFilter->setValue($primaryKey);
+        if ($this->cache->has($cacheHash)) {
+            $selectResult = $this->cache->get($cacheHash);
+        } else {
+            $table = $configuration->getTable();
 
-        $where->addFilter($pkFilter);
+            $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
 
-        $selectResult = $this->performSelect($table, $columns, $where);
+            $where = new BaseFilter();
 
+            $pkFilter = new PrimaryKeyFieldFilter();
+            $pkFilter->setEntity($entity);
+            $pkFilter->setValue($primaryKey);
+
+            $where->addFilter($pkFilter);
+
+            $selectResult = $this->performSelect($table, $columns, $where);
+            $this->cache->set($cacheHash, $selectResult);
+        }
 
         if ($selectResult) {
             $entityHydrator = new EntityHydrator();
             $entityHydrator->setAdapterFactory($this->adapterFactory);
             $this->addEntityStrategyToHydrator($entityHydrator, $configuration);
 
-            return $entityHydrator->hydrate($entity, $selectResult->getFirst());
+            $entity = $entityHydrator->hydrate($entity, $selectResult->getFirst());
+
+            return $entity;
         }
 
         return null;
@@ -112,55 +118,6 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
             }
         }
         return $columns;
-    }
-
-    /**
-     * getFieldFilterStrategy
-     * @param FieldFilterInterface $fieldFilter
-     * @return FieldFilterStrategyInterface
-     * @throws FieldFilterStrategyNotExists
-     * @throws \ReflectionException
-     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
-     */
-    protected function getFieldFilterStrategy(FieldFilterInterface $fieldFilter) : FieldFilterStrategyInterface
-    {
-        $filterClassname = (new \ReflectionClass($fieldFilter))->getShortName();
-        /** @var FieldFilterStrategyInterface $strategy */
-        $strategy = null;
-        $defaultStrategy = 'Core\Filter\FieldFilter\Strategy\\'.$filterClassname.'Strategy';
-        $adapterStrategy = $defaultStrategy.self::ADAPTER_TYPE;
-
-        if (class_exists($adapterStrategy)) {
-            $strategy = new $adapterStrategy();
-        } else if (class_exists($defaultStrategy)) {
-            $strategy = new $defaultStrategy();
-        } else {
-            throw new FieldFilterStrategyNotExists();
-        }
-
-        return $strategy;
-    }
-
-    /**
-     * buildFilters
-     * @param FilterInterface $filter
-     * @return array
-     * @throws FieldFilterStrategyNotExists
-     * @throws \ReflectionException
-     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
-     */
-    protected function buildFilters(FilterInterface $filter) : array
-    {
-        $builtFilters = [];
-
-        /** @var FieldFilterInterface $fieldFilter */
-        foreach ($filter->getFilters() as $fieldFilter) {
-            $strategy = $this->getFieldFilterStrategy($fieldFilter);
-            $entity = $fieldFilter->getEntity();
-            $builtFilters += $strategy->transform($entity, $fieldFilter);
-        }
-
-        return $builtFilters;
     }
 
     /**
@@ -223,6 +180,57 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
     }
 
     /**
+     * buildFilters
+     * @param FilterInterface $filter
+     * @return array
+     * @throws FieldFilterStrategyNotExists
+     * @throws \ReflectionException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    protected function buildFilters(FilterInterface $filter): array
+    {
+        $builtFilters = [];
+
+        /** @var FieldFilterInterface $fieldFilter */
+        foreach ($filter->getFilters() as $fieldFilter) {
+            $strategy = $this->getFieldFilterStrategy($fieldFilter);
+            $entity = $fieldFilter->getEntity();
+            $builtFilters += $strategy->transform($entity, $fieldFilter);
+        }
+
+        return $builtFilters;
+    }
+
+    /**
+     * getFieldFilterStrategy
+     * @param FieldFilterInterface $fieldFilter
+     * @return FieldFilterStrategyInterface
+     * @throws FieldFilterStrategyNotExists
+     * @throws \ReflectionException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    protected function getFieldFilterStrategy(FieldFilterInterface $fieldFilter): FieldFilterStrategyInterface
+    {
+        $filterClassname = (new \ReflectionClass($fieldFilter))->getShortName();
+        /** @var FieldFilterStrategyInterface $strategy */
+        $strategy = null;
+        $defaultStrategy = 'Core\Filter\FieldFilter\Strategy\\' . $filterClassname . 'Strategy';
+        $adapterStrategy = $defaultStrategy . self::ADAPTER_TYPE;
+
+        if (class_exists($adapterStrategy)) {
+            $strategy = new $adapterStrategy();
+        } else {
+            if (class_exists($defaultStrategy)) {
+                $strategy = new $defaultStrategy();
+            } else {
+                throw new FieldFilterStrategyNotExists();
+            }
+        }
+
+        return $strategy;
+    }
+
+    /**
      * search
      * @param string $entity
      * @param FilterInterface $filter
@@ -240,18 +248,21 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
         $offset = null,
         $limit = null
     ): CollectionInterface {
+
+        $cacheHash = $this->cache->generateHash();
         $entity = $filter->getEntity();
         $configuration = $this->getEntityConfiguration($entity);
         $table = $configuration->getTable();
 
         $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
 
-        $selectResult = $this->performSelect($table, $columns, $filter, $offset, $limit);
+        if ($this->cache->has($cacheHash)) {
+            $selectResult = $this->cache->get($cacheHash);
+        } else {
+            $selectResult = $this->performSelect($table, $columns, $filter, $offset, $limit);
 
-        $resultEntities = [];
-
-        // TODO
-
+            $this->cache->set($cacheHash, $selectResult);
+        }
 
         $entityCollectionHydrator = new CollectionEntityHydrator();
         $entityCollectionHydrator->setAdapterFactory($this->adapterFactory);
@@ -276,26 +287,34 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
      */
     public function findBy(string $entity, string $key, $value, $fieldToFetch = null): ?EntityInterface
     {
-        $configuration = $this->getEntityConfiguration($entity);
+        $cacheHash = $this->cache->generateHash();
 
         $selectResult = null;
+        if ($this->cache->has($cacheHash)) {
+            $selectResult = $this->cache->get($cacheHash);
+        } else {
+            $configuration = $this->getEntityConfiguration($entity);
 
-        $table = $configuration->getTable();
+            $selectResult = null;
 
-        $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
+            $table = $configuration->getTable();
 
-        $whereConditions = [];
+            $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
 
-        if (isset($configuration->getFieldMapping()[$key])) {
-            $whereConditions[$configuration->getFieldMapping()[$key]] = $value;
-        }
+            $whereConditions = [];
 
-        if (count($whereConditions)) {
-            $where = new BaseFilter();
-            foreach ($whereConditions as $field => $condition) {
-                $where->addFilter(new EqualsFieldFilter($entity, [$field => $condition]));
+            if (isset($configuration->getFieldMapping()[$key])) {
+                $whereConditions[$configuration->getFieldMapping()[$key]] = $value;
             }
-            $selectResult = $this->performSelect($table, $columns, $where);
+
+            if (count($whereConditions)) {
+                $where = new BaseFilter();
+                foreach ($whereConditions as $field => $condition) {
+                    $where->addFilter(new EqualsFieldFilter($entity, [$field => $condition]));
+                }
+                $selectResult = $this->performSelect($table, $columns, $where);
+                $this->cache->set($cacheHash, $selectResult);
+            }
         }
 
         if ($selectResult) {
@@ -303,7 +322,9 @@ class MsSQLAdapter extends AbstractAdapter implements TransactionInterface
             $entityHydrator->setAdapterFactory($this->adapterFactory);
             $this->addEntityStrategyToHydrator($entityHydrator, $configuration);
 
-            return $entityHydrator->hydrate($entity, $selectResult->getFirst());
+            $entity = $entityHydrator->hydrate($entity, $selectResult->getFirst());
+
+            return $entity;
         }
 
         return null;
