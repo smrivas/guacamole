@@ -14,8 +14,7 @@
 namespace Core\Filter\FieldFilter\Strategy;
 
 
-use Core\Adapter\EntityConfiguration\EntityConfiguration;
-use Core\Entity\EntityInterface;
+use Core\EntityConfiguration\EntityConfiguration;
 use Core\Filter\FieldFilter\FieldFilterInterface;
 
 class PrimaryKeyFieldFilterStrategy extends AbstractFieldFilterStrategy
@@ -24,10 +23,10 @@ class PrimaryKeyFieldFilterStrategy extends AbstractFieldFilterStrategy
     {
         $whereConditions = [];
 
-        $configuration = new EntityConfiguration();
-        $configuration->setEntity($entity);
+        $configuration = EntityConfiguration();
+        EntityConfiguration::setEntity($entity);
 
-        $primaryKeyFields = $configuration->getPrimaryKeyField();
+        $primaryKeyFields = $configuration->getPrimaryKeyField($entity);
 
         $primaryKey = $filter->getValue();
 

@@ -12,7 +12,7 @@
 namespace Core\Adapter;
 
 use Core\Adapter\AdapterFactory\AdapterFactoryInterface;
-use Core\Adapter\Result\Collection\CollectionInterface;
+use Core\Collection\CollectionInterface;
 use Core\Adapter\Result\SQLResultInterface;
 use Core\Entity\EntityInterface;
 use Core\Filter\FilterInterface;

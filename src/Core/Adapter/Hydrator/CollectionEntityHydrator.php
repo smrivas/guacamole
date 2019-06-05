@@ -14,7 +14,7 @@
 namespace Core\Adapter\Hydrator;
 
 
-use Core\Adapter\Result\Collection\EntityCollection;
+use Core\Collection\EntityCollection;
 
 class CollectionEntityHydrator extends BaseHydrator
 {

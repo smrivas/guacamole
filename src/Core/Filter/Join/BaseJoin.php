@@ -14,11 +14,10 @@
 namespace Core\Filter\Join;
 
 
-use Core\Adapter\EntityConfiguration\EntityConfiguration;
 use Core\Entity\EntityDependencyInterface;
+use Core\EntityConfiguration\EntityConfiguration;
 use Core\Filter\Join\JoinTable\JoinTable;
 use Core\Filter\Join\JoinTable\JoinTableInterface;
-use Zend\Debug\Debug;
 
 class BaseJoin extends AbstractJoin
 {
@@ -26,7 +25,7 @@ class BaseJoin extends AbstractJoin
     /**
      * @inheritDoc
      */
-    public function getJoinTable() : JoinTableInterface
+    public function getJoinTable(): JoinTableInterface
     {
         return $this->joinTable;
     }
@@ -34,7 +33,7 @@ class BaseJoin extends AbstractJoin
     /**
      * @inheritDoc
      */
-    public function generateJoinTable() : string
+    public function generateJoinTable(): string
     {
         return $this->joinTable->getTableString();
     }
@@ -56,39 +55,42 @@ class BaseJoin extends AbstractJoin
         return $this->baseTable;
     }
 
-    public function getBaseTableString() : string
-    {
-        $config = $this->baseTable::getModelConfig();
-        return $config["table"];
-    }
-
-
     /**
-     * @inheritDoc
+     * getJoinExpresion
+     * @return string
+     * @throws \DependencyDetailsException
+     * @throws \EntityConfigurationFieldNotExistException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
     public function getJoinExpresion(): string
     {
         /** @var EntityDependencyInterface $baseTable */
         $baseTable = $this->baseTable;
 
-        $joinTable = explode("\\",$this->joinTable->getTable());
+        $joinTable = explode("\\", $this->joinTable->getTable());
         $joinTable = $joinTable[count($joinTable) - 1];
         $joinDetails = $baseTable::extractDependencyDetails($joinTable);
-        if (empty($joinDetails)) {
 
+        if (empty($joinDetails)) {
+            throw new \DependencyDetailsException();
         }
 
-        $baseTableEntityConfig = new EntityConfiguration();
-        $baseTableEntityConfig->setEntity($baseTable);
+        $joinValue = EntityConfiguration::mapField($baseTable, $joinDetails["joinValue"]);
+        $joinField = EntityConfiguration::mapField($this->joinTable->getTable(), $joinDetails["joinField"]);
 
-        $joinTableEntityConfig = new EntityConfiguration();
-        $joinTableEntityConfig->setEntity($this->joinTable->getTable());
-
-        $joinValue = $baseTableEntityConfig->mapField($joinDetails["joinValue"]);
-        $joinField = $joinTableEntityConfig->mapField($joinDetails["joinField"]);
-
-        $joinExpression = $this->getBaseTableString().".".$joinValue."=".$this->joinTable->getTableString().".".$joinField;
+        $joinExpression = $this->getBaseTableString() . "." . $joinValue . "=" . $this->joinTable->getTableString() . "." . $joinField;
         return $joinExpression;
+    }
+
+    /**
+     * getBaseTableString
+     * @return string
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function getBaseTableString(): string
+    {
+        $config = $this->baseTable::getModelConfig();
+        return $config["table"];
     }
 
     public function joinWith(string $entityJoin, string $alias = '', array $customFieldsFetch = []): JoinInterface
@@ -100,9 +102,9 @@ class BaseJoin extends AbstractJoin
     /**
      * @inheritDoc
      */
-    public function __toString() : string
+    public function __toString(): string
     {
-        return $this->baseTable.":".$this->joinTable;
+        return $this->baseTable . ":" . $this->joinTable;
     }
 
     /**

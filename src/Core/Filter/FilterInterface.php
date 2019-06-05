@@ -57,5 +57,9 @@ interface FilterInterface
 
     public function getEntity() : string;
 
+    public function setJoin(string $dependencyName, string $alias = '') : FilterInterface;
+
+    public function setEqualsField($field, $value, string $alias = '') : FilterInterface;
+
 
 }

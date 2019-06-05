@@ -18,6 +18,27 @@ use Core\Adapter\AdapterInterface;
 
 interface DbAccess
 {
-    public function addAdapter(AdapterInterface $adapter);
+    /**
+     * addAdapter
+     * @param AdapterInterface $adapter
+     * @param string $name
+     * @return ServiceInterface
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function addAdapter(AdapterInterface $adapter, string $name = '') : ServiceInterface;
+
+    /**
+     * getAdapters
+     * @return array
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
     public function getAdapters() : array;
+
+    /**
+     * getAdapter
+     * @param string $name
+     * @return AdapterInterface|null
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function getAdapter(string $name) : ?AdapterInterface;
 }

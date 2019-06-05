@@ -14,8 +14,7 @@
 namespace Core\Filter\Join\JoinTable;
 
 
-use Core\Adapter\EntityConfiguration\EntityConfiguration;
-use Core\Entity\EntityDependencyInterface;
+use Core\EntityConfiguration\EntityConfiguration;
 use Core\Entity\EntityInterface;
 
 class JoinTable implements JoinTableInterface
@@ -37,13 +36,19 @@ class JoinTable implements JoinTableInterface
         $this->alias = $alias;
     }
 
+    /**
+     * getTableString
+     * @return string
+     * @throws \EntityConfigurationFieldNotExistException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
     public function getTableString(): string
     {
         /** @var EntityInterface $table */
         $table = $this->table;
         $config = $table::getModelConfig();
         if (empty($config["table"])) {
-
+            throw new \EntityConfigurationFieldNotExistException("table");
         }
 
         $tableString = $config["table"];
@@ -62,10 +67,8 @@ class JoinTable implements JoinTableInterface
      */
     public function getColumns(): array
     {
-        $config = new EntityConfiguration();
-        $config->setEntity($this->table);
 
-        $fields = count($this->customFields) > 0 ? $this->customFields : array_keys($config->getFieldMapping());
+        $fields = count($this->customFields) > 0 ? $this->customFields : array_keys(EntityConfiguration::getFieldMapping($this->table));
         $columns = [];
         foreach ($fields as $customField) {
             $fieldName = $customField;
@@ -73,7 +76,7 @@ class JoinTable implements JoinTableInterface
                 $fieldName = $fieldName["fieldName"];
             }
 
-            $columns[$this->getTableString().".".$fieldName] = $config->mapField($fieldName);
+            $columns[$this->getTableString().".".$fieldName] = EntityConfiguration::mapField($this->table, $fieldName);
         }
 
         return $columns;
@@ -115,7 +118,7 @@ class JoinTable implements JoinTableInterface
     /**
      * @return mixed
      */
-    public function getAlias()
+    public function getAlias() : string
     {
         return $this->alias;
     }
