@@ -15,12 +15,12 @@ namespace Core\Adapter;
 
 
 use Core\Adapter\AdapterFactory\AdapterFactoryInterface;
-use Core\Adapter\EntityConfiguration\EntityConfiguration;
+use Core\EntityConfiguration\EntityConfiguration;
 use Core\Adapter\Hydrator\HydratorInterface;
 use Core\Adapter\Result\SQLResultInterface;
 use Core\Entity\EntityInterface;
 use Core\Filter\FilterInterface;
-use Core\Adapter\Result\Collection\CollectionInterface;
+use Core\Collection\CollectionInterface;
 
 abstract class AbstractAdapter extends CachedAdapter implements AdapterInterface
 {
@@ -65,23 +65,9 @@ abstract class AbstractAdapter extends CachedAdapter implements AdapterInterface
     abstract public function findBy(string $entity, string $key, $value, $fieldToFetch = null): ?EntityInterface;
 
 
-    /**
-     * getEntityConfiguration
-     * @param string $entity
-     * @return EntityConfiguration
-     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
-     */
-    protected function getEntityConfiguration(string $entity): EntityConfiguration
+    protected function addEntityStrategyToHydrator(string $entity, HydratorInterface $entityHydator)
     {
-        $configuration = new EntityConfiguration();
-        $configuration->setEntity($entity);
-
-        return $configuration;
-    }
-
-    protected function addEntityStrategyToHydrator(HydratorInterface $entityHydator, EntityConfiguration $configuration)
-    {
-        foreach ($configuration->getFieldMapping() as $field => $value) {
+        foreach (EntityConfiguration::getFieldMapping($entity) as $field => $value) {
             if (is_array($value) && !empty($value["transform"])) {
                 $entityHydator->addStrategy($field, $value["transform"]);
             }

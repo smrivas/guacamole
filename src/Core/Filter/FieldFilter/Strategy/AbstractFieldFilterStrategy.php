@@ -14,8 +14,7 @@
 namespace Core\Filter\FieldFilter\Strategy;
 
 
-use Core\Adapter\EntityConfiguration\EntityConfiguration;
-use Core\Entity\EntityInterface;
+use Core\EntityConfiguration\EntityConfiguration;
 use Core\Filter\FieldFilter\FieldFilterInterface;
 
 abstract class AbstractFieldFilterStrategy implements FieldFilterStrategyInterface
@@ -34,9 +33,6 @@ abstract class AbstractFieldFilterStrategy implements FieldFilterStrategyInterfa
      */
     protected function mapField(FieldFilterInterface $filter)
     {
-        $configuration = new EntityConfiguration();
-        $configuration->setEntity($this->entity);
-
-        return $configuration->mapField($filter->getField());
+        return EntityConfiguration::mapField($this->entity, $filter->getField());
     }
 }

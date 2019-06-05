@@ -19,6 +19,7 @@ interface JoinTableInterface
     public function getTable() : string;
     public function getTableString() : string;
     public function getColumns() : array;
+    public function getAlias() : string ;
 
     public function __toString() : string;
 

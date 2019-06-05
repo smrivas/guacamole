@@ -18,9 +18,7 @@ use Core\Adapter\Error\HydratorClassNotExistsException;
 use Core\Adapter\Error\HydratorResultSetException;
 use Core\Adapter\Hydrator\ResultsetHydrator;
 use Core\Adapter\Result\BaseSelectResult;
-use Core\Adapter\Result\Collection\CollectionInterface;
 use Core\Adapter\Result\SQLResultInterface;
-use Core\Entity\EntityInterface;
 use Core\Filter\FieldFilter\FieldFilterInterface;
 use Core\Filter\FieldFilter\Strategy\Error\FieldFilterStrategyNotExists;
 use Core\Filter\FieldFilter\Strategy\FieldFilterStrategyInterface;
@@ -37,6 +35,33 @@ abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInte
      * @var null|\Zend\Db\Adapter\Driver\ConnectionInterface
      */
     protected $transaction = null;
+
+    public function startTransaction(): AdapterInterface
+    {
+        if ($this->adapter) {
+            $this->transaction = $this->adapter->getDriver()->getConnection()->beginTransaction();
+        }
+        return $this;
+    }
+
+    public function inTransaction(): bool
+    {
+        return !($this->transaction === null);
+    }
+
+    public function commit()
+    {
+        if ($this->transaction) {
+            $this->transaction->commit();
+        }
+    }
+
+    public function rollback(): void
+    {
+        if ($this->transaction) {
+            $this->transaction->rollback();
+        }
+    }
 
     /**
      * performSelect
@@ -119,7 +144,6 @@ abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInte
         return $builtFilters;
     }
 
-
     /**
      * getFieldFilterStrategy
      * @param FieldFilterInterface $fieldFilter
@@ -147,33 +171,6 @@ abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInte
         }
 
         return $strategy;
-    }
-
-    public function startTransaction(): AdapterInterface
-    {
-        if ($this->adapter) {
-            $this->transaction = $this->adapter->getDriver()->getConnection()->beginTransaction();
-        }
-        return $this;
-    }
-
-    public function inTransaction(): bool
-    {
-        return !($this->transaction === null);
-    }
-
-    public function commit()
-    {
-        if ($this->transaction) {
-            $this->transaction->commit();
-        }
-    }
-
-    public function rollback(): void
-    {
-        if ($this->transaction) {
-            $this->transaction->rollback();
-        }
     }
 
     protected function getLastGeneratedValue()

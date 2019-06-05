@@ -14,17 +14,17 @@
 namespace Core\Adapter;
 
 
-use Core\Adapter\EntityConfiguration\EntityConfiguration;
 use Core\Adapter\Error\HydratorClassNotExistsException;
 use Core\Adapter\Error\HydratorResultSetException;
 use Core\Adapter\Hydrator\CollectionEntityHydrator;
 use Core\Adapter\Hydrator\EntityHydrator;
 use Core\Adapter\Hydrator\ResultsetHydrator;
 use Core\Adapter\Result\BasePersistResult;
-use Core\Adapter\Result\Collection\CollectionInterface;
-use Core\Adapter\Result\Collection\EntityCollection;
 use Core\Adapter\Result\SQLResultInterface;
+use Core\Collection\CollectionInterface;
+use Core\Collection\EntityCollection;
 use Core\Entity\EntityInterface;
+use Core\EntityConfiguration\EntityConfiguration;
 use Core\Filter\BaseFilter;
 use Core\Filter\FieldFilter\EqualsFieldFilter;
 use Core\Filter\FieldFilter\PrimaryKeyFieldFilter;
@@ -53,14 +53,12 @@ class MsSQLAdapter extends BaseSQLAdapter
         $cacheHash = $this->cache->generateHash();
         $selectResult = null;
 
-        $configuration = $this->getEntityConfiguration($entity);
-
         if (self::cache_enable && $this->cache->has($cacheHash)) {
             $selectResult = $this->cache->get($cacheHash);
         } else {
-            $table = $configuration->getTable();
-
-            $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
+            $table = EntityConfiguration::getTable($entity);
+            $fieldsMapping = EntityConfiguration::getFieldMapping($entity);
+            $columns = $this->_parseFieldsToFetch($fieldsMapping, $fieldToFetch);
 
             $where = new BaseFilter();
 
@@ -79,7 +77,7 @@ class MsSQLAdapter extends BaseSQLAdapter
         if ($selectResult) {
             $entityHydrator = new EntityHydrator();
             $entityHydrator->setAdapterFactory($this->adapterFactory);
-            $this->addEntityStrategyToHydrator($entityHydrator, $configuration);
+            $this->addEntityStrategyToHydrator($entity, $entityHydrator);
 
             $entity = $entityHydrator->hydrate($entity, $selectResult->getFirst());
 
@@ -89,10 +87,9 @@ class MsSQLAdapter extends BaseSQLAdapter
         return null;
     }
 
-    protected function _parseFieldsToFetch(EntityConfiguration $configuration, $fieldToFetch = null): array
+    protected function _parseFieldsToFetch($fieldsMapping, $fieldToFetch = null): array
     {
         $columns = [];
-        $fieldsMapping = $configuration->getFieldMapping();
 
         if (!$fieldToFetch) {
             foreach ($fieldsMapping as $fieldName => $columnName) {
@@ -138,10 +135,9 @@ class MsSQLAdapter extends BaseSQLAdapter
 
         $cacheHash = $this->cache->generateHash();
         $entity = $filter->getEntity();
-        $configuration = $this->getEntityConfiguration($entity);
-        $table = $configuration->getTable();
-
-        $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
+        $table = EntityConfiguration::getTable($entity);
+        $fieldsMapping = EntityConfiguration::getFieldMapping($entity);
+        $columns = $this->_parseFieldsToFetch($fieldsMapping, $fieldToFetch);
 
         if (self::cache_enable && $this->cache->has($cacheHash)) {
             $selectResult = $this->cache->get($cacheHash);
@@ -156,7 +152,7 @@ class MsSQLAdapter extends BaseSQLAdapter
         $entityCollectionHydrator = new CollectionEntityHydrator();
         $entityCollectionHydrator->setAdapterFactory($this->adapterFactory);
         $entityCollectionHydrator->setCollectionEntity($entity);
-        $this->addEntityStrategyToHydrator($entityCollectionHydrator, $configuration);
+        $this->addEntityStrategyToHydrator($entity, $entityCollectionHydrator);
 
         $entityCollection = $entityCollectionHydrator->hydrate(EntityCollection::class, $selectResult->toArray());
 
@@ -184,18 +180,18 @@ class MsSQLAdapter extends BaseSQLAdapter
         if (self::cache_enable && $this->cache->has($cacheHash)) {
             $selectResult = $this->cache->get($cacheHash);
         } else {
-            $configuration = $this->getEntityConfiguration($entity);
 
             $selectResult = null;
 
-            $table = $configuration->getTable();
+            $table = EntityConfiguration::getTable($entity);
 
-            $columns = $this->_parseFieldsToFetch($configuration, $fieldToFetch);
+            $fieldsMapping = EntityConfiguration::getFieldMapping($entity);
+            $columns = $this->_parseFieldsToFetch($fieldsMapping, $fieldToFetch);
 
             $whereConditions = [];
 
-            if (isset($configuration->getFieldMapping()[$key])) {
-                $whereConditions[$configuration->getFieldMapping()[$key]] = $value;
+            if (EntityConfiguration::hasFieldMapping($entity, $key)) {
+                $whereConditions[EntityConfiguration::mapField($entity, $key)] = $value;
             }
 
             if (count($whereConditions)) {
@@ -213,7 +209,7 @@ class MsSQLAdapter extends BaseSQLAdapter
         if ($selectResult) {
             $entityHydrator = new EntityHydrator();
             $entityHydrator->setAdapterFactory($this->adapterFactory);
-            $this->addEntityStrategyToHydrator($entityHydrator, $configuration);
+            $this->addEntityStrategyToHydrator($entity, $entityHydrator);
 
             $entity = $entityHydrator->hydrate($entity, $selectResult->getFirst());
 
@@ -260,17 +256,18 @@ class MsSQLAdapter extends BaseSQLAdapter
     protected function persistOutOfTransaction(EntityInterface $obj): SQLResultInterface
     {
         $sql = new Sql($this->adapter);
-        $configuration = $this->getEntityConfiguration($obj);
+
+        $entity = get_class($obj);
 
         $result = null;
-        $fieldMapping = $configuration->getFieldMapping();
+        $fieldMapping = EntityConfiguration::getFieldMapping($entity);
 
         $entityHydrator = new EntityHydrator();
         $entityHydrator->setAdapterFactory($this->adapterFactory);
         $newData = $entityHydrator->extract($obj, $fieldMapping);
 
         if (!empty($newData)) {
-            $table = $configuration->getTable();
+            $table = EntityConfiguration::getTable($entity);
             $id = $obj->getId();
             if (empty($id)) {
                 $insert = $sql->insert($table);
