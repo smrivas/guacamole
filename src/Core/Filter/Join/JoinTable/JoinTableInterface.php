@@ -17,7 +17,7 @@ namespace Core\Filter\Join\JoinTable;
 interface JoinTableInterface
 {
     public function getTable() : string;
-    public function getTableString() : string;
+    public function getTableString();
     public function getColumns() : array;
     public function getAlias() : string ;
 

@@ -24,7 +24,6 @@ class EqualsFieldFilter extends AbstractFieldFilter
      */
     public function __construct(string $entity, array $condition = [], string $alias = '')
     {
-
         $this->entity = $entity;
         $this->field = key($condition);
         $this->value = reset($condition);

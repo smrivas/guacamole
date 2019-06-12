@@ -34,7 +34,7 @@ use Zend\Db\Sql\Sql;
 class MsSQLAdapter extends BaseSQLAdapter
 {
     const ADAPTER_TYPE = 'MSSQL';
-    const cache_enable = true;
+    const cache_enable = false;
 
     /**
      * get
@@ -148,7 +148,6 @@ class MsSQLAdapter extends BaseSQLAdapter
                 $this->cache->set($cacheHash, $selectResult);
             }
         }
-
         $entityCollectionHydrator = new CollectionEntityHydrator();
         $entityCollectionHydrator->setAdapterFactory($this->adapterFactory);
         $entityCollectionHydrator->setCollectionEntity($entity);

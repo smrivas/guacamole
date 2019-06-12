@@ -14,8 +14,8 @@
 namespace Core\Filter\Join\JoinTable;
 
 
-use Core\EntityConfiguration\EntityConfiguration;
 use Core\Entity\EntityInterface;
+use Core\EntityConfiguration\EntityConfiguration;
 
 class JoinTable implements JoinTableInterface
 {
@@ -37,29 +37,6 @@ class JoinTable implements JoinTableInterface
     }
 
     /**
-     * getTableString
-     * @return string
-     * @throws \EntityConfigurationFieldNotExistException
-     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
-     */
-    public function getTableString(): string
-    {
-        /** @var EntityInterface $table */
-        $table = $this->table;
-        $config = $table::getModelConfig();
-        if (empty($config["table"])) {
-            throw new \EntityConfigurationFieldNotExistException("table");
-        }
-
-        $tableString = $config["table"];
-        if (!empty($this->alias)) {
-
-        }
-
-        return $tableString;
-    }
-
-    /**
      * getColumns
      * @return array
      * @throws \EntityConfigurationFieldNotExistException
@@ -76,17 +53,64 @@ class JoinTable implements JoinTableInterface
                 $fieldName = $fieldName["fieldName"];
             }
 
-            $columns[$this->getTableString().".".$fieldName] = EntityConfiguration::mapField($this->table, $fieldName);
+            $columns[$this->getTableString() . "." . $fieldName] = EntityConfiguration::mapField($this->table,
+                $fieldName);
         }
 
         return $columns;
     }
 
+    /**
+     * getTableString
+     * @return array|string
+     * @throws \EntityConfigurationFieldNotExistException
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function getTableString()
+    {
+        /** @var EntityInterface $table */
+        $table = $this->table;
+        $config = $table::getModelConfig();
+        if (empty($config["table"])) {
+            throw new \EntityConfigurationFieldNotExistException("table");
+        }
+
+        $tableString = $config["table"];
+        if (!empty($this->alias)) {
+            return [$this->alias => $tableString];
+        }
+
+        return $tableString;
+    }
 
     /**
      * @return mixed
      */
-    public function getTable() : string
+    public function getAlias(): string
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @param mixed $alias
+     */
+    public function setAlias($alias): void
+    {
+        $this->alias = $alias;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function __toString(): string
+    {
+        return $this->getTable() . ":" . json_encode($this->getCustomFields());
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTable(): string
     {
         return $this->table;
     }
@@ -113,30 +137,6 @@ class JoinTable implements JoinTableInterface
     public function setCustomFields(array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAlias() : string
-    {
-        return $this->alias;
-    }
-
-    /**
-     * @param mixed $alias
-     */
-    public function setAlias($alias): void
-    {
-        $this->alias = $alias;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function __toString() : string
-    {
-        return $this->getTable().":".json_encode($this->getCustomFields());
     }
 
 

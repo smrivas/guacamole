@@ -24,10 +24,11 @@ use Core\Filter\FieldFilter\Strategy\Error\FieldFilterStrategyNotExists;
 use Core\Filter\FieldFilter\Strategy\FieldFilterStrategyInterface;
 use Core\Filter\FilterInterface;
 use Core\Filter\Join\JoinInterface;
+use Core\Logger\LoggerInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 
-abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInterface
+abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInterface, LoggerInterface
 {
     const ADAPTER_TYPE = "";
 
@@ -107,16 +108,24 @@ abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInte
         if ($offset) {
             $select->offset($offset);
         }
+
         if ($limit) {
             $select->limit($limit);
         }
 
         $sql = new Sql($this->adapter);
 
-        $selectResult = $this->adapter->query(
-            $sql->buildSqlString($select),
-            \Zend\Db\Adapter\Adapter::QUERY_MODE_EXECUTE
-        );
+        $sqlSentence = $sql->buildSqlString($select);
+
+        try {
+            $selectResult = $this->adapter->query(
+                $sqlSentence,
+                \Zend\Db\Adapter\Adapter::QUERY_MODE_EXECUTE
+            );
+        } catch (\Exception $e) {
+            \Zend\Debug\Debug::dump($e->getMessage());die;
+            $this->log($e->getMessage());
+        }
 
         $resultsetHydrator = new ResultsetHydrator();
         return $resultsetHydrator->hydrate(BaseSelectResult::class, $selectResult);
@@ -180,4 +189,27 @@ abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInte
         }
         return null;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function log($data, $level = 0)
+    {
+//        $backtrace = debug_backtrace();
+//        array_shift($backtrace);
+//        array_shift($backtrace);
+//        \Zend\Debug\Debug::dump($backtrace);die;
+//
+//        $parentFn = reset($backtrace);
+//        $function = $parentFn["function"];
+//        $args = $parentFn["args"];
+//
+//        echo "<pre>";
+//        echo $function." ";
+//        echo json_encode($args);
+//        echo "</pre>";
+//        die;
+    }
+
+
 }

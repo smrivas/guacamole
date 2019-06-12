@@ -33,7 +33,7 @@ class BaseJoin extends AbstractJoin
     /**
      * @inheritDoc
      */
-    public function generateJoinTable(): string
+    public function generateJoinTable()
     {
         return $this->joinTable->getTableString();
     }
@@ -76,9 +76,16 @@ class BaseJoin extends AbstractJoin
         }
 
         $joinValue = EntityConfiguration::mapField($baseTable, $joinDetails["joinValue"]);
-        $joinField = EntityConfiguration::mapField($this->joinTable->getTable(), $joinDetails["joinField"]);
+        $joinField = EntityConfiguration::mapField($this->joinTable->getTable(), $joinDetails["joinField"], true);
 
-        $joinExpression = $this->getBaseTableString() . "." . $joinValue . "=" . $this->joinTable->getTableString() . "." . $joinField;
+        $joinTableName = $this->joinTable->getTableString();
+        if (is_array($joinTableName)) {
+            $joinTableName = key($joinTableName);
+        }
+
+
+        $joinExpression = $this->getBaseTableString() . "." . $joinValue . "=" . $joinTableName . "." . $joinField;
+
         return $joinExpression;
     }
 

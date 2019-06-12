@@ -34,10 +34,10 @@ class EqualsFieldFilterStrategy extends AbstractFieldFilterStrategy
         $this->entity = $entity;
 
         $alias = $filter->getFieldAlias();
+
         if (empty($alias)) {
             $alias = $entity::getModelConfig()["table"];
         }
-
         $transformation = [$alias.".".$this->mapField($filter) => $filter->getValue()];
 
         return $transformation;
