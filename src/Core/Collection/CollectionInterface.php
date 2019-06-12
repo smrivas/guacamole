@@ -17,4 +17,5 @@ namespace Core\Collection;
 interface CollectionInterface
 {
     public function add($element, $key = null) : CollectionInterface;
+    public function toArray() : array;
 }

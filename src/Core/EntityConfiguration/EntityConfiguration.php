@@ -14,8 +14,6 @@
 namespace Core\EntityConfiguration;
 
 
-use EntityConfigurationFieldNotExistException;
-
 class EntityConfiguration implements EntityConfigurationInterface
 {
     /** @var Configuration[] */
@@ -61,7 +59,8 @@ class EntityConfiguration implements EntityConfigurationInterface
      * @return bool
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    static public function hasFieldMapping($entity, $key) {
+    static public function hasFieldMapping($entity, $key)
+    {
         $fieldMapping = self::getFieldMapping($entity);
         return isset($fieldMapping[$key]);
     }
@@ -131,19 +130,23 @@ class EntityConfiguration implements EntityConfigurationInterface
      * @return string
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    static public function mapField(string $entity, string $field): string
+    static public function mapField(string $entity, string $field, $debug = false): string
     {
-        if (isset(self::$data[$entity])) {
-            $entityObject = self::$data[$entity];
 
-            $fieldMapping = $entityObject->getFieldMapping();
-
-            if (is_array($fieldMapping[$field])) {
-                return $fieldMapping[$field]["fieldName"];
-            } else {
-                return $fieldMapping[$field];
-            }
+        if (!isset(self::$data[$entity])) {
+            self::setEntity($entity);
         }
+
+        $entityObject = self::$data[$entity];
+
+        $fieldMapping = $entityObject->getFieldMapping();
+
+        if (is_array($fieldMapping[$field])) {
+            return $fieldMapping[$field]["fieldName"];
+        } else {
+            return $fieldMapping[$field];
+        }
+
         return $field;
     }
 }

@@ -112,13 +112,13 @@ class BaseFilter implements FilterInterface
             if (!empty($alias)) {
                 /** @var JoinInterface $joinTable */
                 $joinTable = $this->joins[$alias];
-                $entity = $joinTable->getJoinTable();
+                $entity = $joinTable->getJoinTable()->getTable();
             }
         }
-
         if (empty($alias)) {
             $alias = EntityConfiguration::getTable($this->entity);
         }
+
 
         $equalsFilter = new EqualsFieldFilter($entity, [$field => $value], $alias);
         $this->addFilter($equalsFilter);

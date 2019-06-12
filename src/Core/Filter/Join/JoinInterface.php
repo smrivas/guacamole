@@ -27,10 +27,10 @@ interface JoinInterface
 
     /**
      * generateJoinTable
-     * @return string
+     * @return string|array
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function generateJoinTable() : string;
+    public function generateJoinTable();
 
     /**
      * getJoinExpresion

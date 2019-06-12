@@ -28,6 +28,11 @@ abstract class AbstractCollection implements CollectionInterface, \ArrayAccess, 
         $this->data = $data;
     }
 
+    public function toArray(): array
+    {
+        return $this->data;
+    }
+
 
     public function offsetExists($offset)
     {
