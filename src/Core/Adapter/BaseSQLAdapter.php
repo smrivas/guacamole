@@ -65,6 +65,16 @@ abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInte
     }
 
     /**
+     * addLimit
+     * @param Select $select
+     * @param int $limit
+     * @return AdapterInterface
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    abstract protected function addLimit(Select &$select, int $limit): AdapterInterface;
+
+
+    /**
      * performSelect
      * @param string $table
      * @param array $columns
@@ -105,12 +115,12 @@ abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInte
                 $select->join($join->generateJoinTable(), $join->getJoinExpresion(), []);
             }
         }
-        if ($offset) {
+        if ($offset > 0) {
             $select->offset($offset);
         }
 
-        if ($limit) {
-            $select->limit($limit);
+        if ($limit > 0) {
+            $this->addLimit($select, $limit);
         }
 
         $sql = new Sql($this->adapter);
@@ -123,7 +133,7 @@ abstract class BaseSQLAdapter extends AbstractAdapter implements TransactionInte
                 \Zend\Db\Adapter\Adapter::QUERY_MODE_EXECUTE
             );
         } catch (\Exception $e) {
-            \Zend\Debug\Debug::dump($e->getMessage());die;
+
             $this->log($e->getMessage());
         }
 

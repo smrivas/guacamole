@@ -57,9 +57,39 @@ interface FilterInterface
 
     public function getEntity() : string;
 
-    public function setJoin(string $dependencyName, string $alias = '') : FilterInterface;
+    public function setJoin(string $dependencyName, string $alias = '',$originEntity = null, string $originAlias = '') : FilterInterface;
 
     public function setEqualsField($field, $value, string $alias = '') : FilterInterface;
+
+    /**
+     * setLimit
+     * @param int $limit
+     * @return mixed
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function setLimit(int $limit) : FilterInterface;
+
+    /**
+     * getLimit
+     * @return int
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function getLimit() : int;
+
+    /**
+     * setOffset
+     * @param int $offset
+     * @return FilterInterface
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function setOffset(int $offset) : FilterInterface;
+
+    /**
+     * getOffset
+     * @return int
+     * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
+     */
+    public function getOffset() : int;
 
 
 }

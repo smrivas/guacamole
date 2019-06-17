@@ -42,10 +42,11 @@ interface JoinInterface
     /**
      * setBaseTable
      * @param string $baseTable
+     * @param string $baseAlias
      * @return JoinInterface
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function setBaseTable(string $baseTable = '') : JoinInterface;
+    public function setBaseTable(string $baseTable = '',string $baseAlias = '') : JoinInterface;
 
     /**
      * getBaseTable
@@ -56,13 +57,14 @@ interface JoinInterface
 
     /**
      * joinWith
+     * @param string $fromEntity
      * @param string $entityJoin
      * @param string $alias
      * @param array $customFieldsFetch
      * @return JoinInterface
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function joinWith(string $entityJoin, string $alias = '', array $customFieldsFetch = []): JoinInterface;
+    public function joinWith(string $fromEntity, string $entityJoin, string $alias = '', string $fromAlias = '', array $customFieldsFetch = []): JoinInterface;
 
     /**
      * getColumns

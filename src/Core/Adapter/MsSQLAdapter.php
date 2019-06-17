@@ -16,6 +16,7 @@ namespace Core\Adapter;
 
 use Core\Adapter\Error\HydratorClassNotExistsException;
 use Core\Adapter\Error\HydratorResultSetException;
+use Core\Adapter\Field\Strategy\FieldStrategy;
 use Core\Adapter\Hydrator\CollectionEntityHydrator;
 use Core\Adapter\Hydrator\EntityHydrator;
 use Core\Adapter\Hydrator\ResultsetHydrator;
@@ -29,6 +30,7 @@ use Core\Filter\BaseFilter;
 use Core\Filter\FieldFilter\EqualsFieldFilter;
 use Core\Filter\FieldFilter\PrimaryKeyFieldFilter;
 use Core\Filter\FilterInterface;
+use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 
 class MsSQLAdapter extends BaseSQLAdapter
@@ -96,6 +98,11 @@ class MsSQLAdapter extends BaseSQLAdapter
                 $name = $columnName;
                 if (is_array($columnName)) {
                     $name = $columnName["fieldName"];
+                    if (!empty($columnName["fieldType"]) && class_exists($columnName["fieldType"])) {
+                        /** @var FieldStrategy $selectStrategy */
+                        $selectStrategy = new $columnName["fieldType"];
+                        $name = $selectStrategy->transform($name);
+                    }
                 }
                 $columns[$fieldName] = $name;
             }
@@ -112,13 +119,20 @@ class MsSQLAdapter extends BaseSQLAdapter
         return $columns;
     }
 
+    /**
+     * @inheritDoc
+     */
+    protected function addLimit(Select &$select, int $limit): AdapterInterface
+    {
+        $select->quantifier('TOP '.$limit);
+        return $this;
+    }
+
 
     /**
      * search
      * @param FilterInterface $filter
      * @param null $fieldToFetch
-     * @param null $offset
-     * @param null $limit
      * @return CollectionInterface
      * @throws HydratorClassNotExistsException
      * @throws HydratorResultSetException
@@ -128,9 +142,7 @@ class MsSQLAdapter extends BaseSQLAdapter
      */
     public function search(
         FilterInterface $filter,
-        $fieldToFetch = null,
-        $offset = null,
-        $limit = null
+        $fieldToFetch = null
     ): CollectionInterface {
 
         $cacheHash = $this->cache->generateHash();
@@ -142,7 +154,8 @@ class MsSQLAdapter extends BaseSQLAdapter
         if (self::cache_enable && $this->cache->has($cacheHash)) {
             $selectResult = $this->cache->get($cacheHash);
         } else {
-            $selectResult = $this->performSelect($table, $columns, $filter, $offset, $limit);
+            $result = $this->adapter->query("SET TEXTSIZE 2147483647");
+            $selectResult = $this->performSelect($table, $columns, $filter, [],$filter->getOffset(), $filter->getLimit());
 
             if (self::cache_enable) {
                 $this->cache->set($cacheHash, $selectResult);
