@@ -90,4 +90,11 @@ abstract class AbstractCollection implements CollectionInterface, \ArrayAccess, 
     {
         $this->data = unserialize($serialized);
     }
+
+    public function first()
+    {
+        return reset($this->data);
+    }
+
+
 }

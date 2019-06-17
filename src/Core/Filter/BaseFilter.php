@@ -30,6 +30,8 @@ class BaseFilter implements FilterInterface
     protected $predicate = PredicateSet::OP_AND;
     protected $joins = [];
     protected $entity = null;
+    protected $limit = 0;
+    protected $offset = 0;
 
     public function getPredicate(): string
     {
@@ -46,13 +48,16 @@ class BaseFilter implements FilterInterface
      * setJoin
      * @param string $dependencyName
      * @param string $alias
+     * @param string|null $originEntity
+     * @param string|null $originAlias
      * @return FilterInterface
      * @throws DependencyConfigException
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
-    public function setJoin(string $dependencyName, string $alias = ''): FilterInterface
+    public function setJoin(string $dependencyName, string $alias = '', $originEntity = null, string $originAlias = ''): FilterInterface
     {
-        $dependencies = EntityConfiguration::getDependencies($this->entity);
+        $fromEntity = $originEntity ?? $this->entity;
+        $dependencies = EntityConfiguration::getDependencies($fromEntity);
 
         if (empty($dependencies[$dependencyName])) {
             throw new DependencyConfigException();
@@ -61,7 +66,7 @@ class BaseFilter implements FilterInterface
         $dependencyEntity = $dependencies[$dependencyName]["entity"];
 
         $joinDetails = new BaseJoin();
-        $joinDetails->joinWith($dependencyEntity, $alias);
+        $joinDetails->joinWith($fromEntity, $dependencyEntity, $alias, $originAlias);
         $this->addJoin($joinDetails);
 
         return $this;
@@ -158,6 +163,38 @@ class BaseFilter implements FilterInterface
     public function getJoins(): array
     {
         return $this->joins;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setLimit(int $limit) : FilterInterface
+    {
+        $this->limit = $limit;
+        return $this;
+    }
+
+    public function getLimit(): int
+    {
+        return $this->limit;
+    }
+
+    /**
+     * @return null
+     */
+    public function getOffset() : int
+    {
+        return $this->offset;
+    }
+
+    /**
+     * @param int $offset
+     * @return BaseFilter
+     */
+    public function setOffset(int $offset): FilterInterface
+    {
+        $this->offset = $offset;
+        return $this;
     }
 
 

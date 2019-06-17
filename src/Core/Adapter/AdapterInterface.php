@@ -16,6 +16,7 @@ use Core\Collection\CollectionInterface;
 use Core\Adapter\Result\SQLResultInterface;
 use Core\Entity\EntityInterface;
 use Core\Filter\FilterInterface;
+use Zend\Db\Sql\Select;
 
 interface AdapterInterface
 {
@@ -67,4 +68,5 @@ interface AdapterInterface
      * @author Juan Pablo Cruz Maseda <pablo.cruz@digimobil.es>
      */
     public function setAdapterFactory(AdapterFactoryInterface $adapterFactory): AdapterInterface;
+
 }

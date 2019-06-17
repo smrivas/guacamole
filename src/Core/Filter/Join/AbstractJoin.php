@@ -21,6 +21,8 @@ abstract class AbstractJoin implements JoinInterface
     /** @var null|JoinTableInterface  */
     protected $joinTable = null;
     /** @var null|string  */
+    protected $baseAlias = null;
+    /** @var null|string  */
     protected $baseTable = null;
 
     protected $entity1;

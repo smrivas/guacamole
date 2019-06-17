@@ -41,9 +41,10 @@ class BaseJoin extends AbstractJoin
     /**
      * @inheritDoc
      */
-    public function setBaseTable(string $baseTable = ''): JoinInterface
+    public function setBaseTable(string $baseTable = '', string $baseAlias = ''): JoinInterface
     {
         $this->baseTable = $baseTable;
+        $this->baseAlias = $baseAlias;
         return $this;
     }
 
@@ -96,12 +97,19 @@ class BaseJoin extends AbstractJoin
      */
     public function getBaseTableString(): string
     {
+        if (!empty($this->baseAlias)) {
+            return $this->baseAlias;
+        }
         $config = $this->baseTable::getModelConfig();
         return $config["table"];
     }
 
-    public function joinWith(string $entityJoin, string $alias = '', array $customFieldsFetch = []): JoinInterface
+    public function joinWith(string $fromEntity, string $entityJoin, string $alias = '', string $fromAlias = '', array $customFieldsFetch = []): JoinInterface
     {
+        $this->baseTable = $fromEntity;
+        if (!empty($fromAlias)) {
+            $this->baseAlias = $fromAlias;
+        }
         $this->joinTable = new JoinTable($entityJoin, $customFieldsFetch, $alias);
         return $this;
     }
